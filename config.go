@@ -1,11 +1,12 @@
 package main
 
 import (
-	"encoding/base64"
+	"encoding/base32"
 	"errors"
 	"fmt"
 	"html/template"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -110,7 +111,7 @@ func (vh *VirtualHost) Configure() (err error) {
 	}
 
 	cfg := session.NewDefaultConfig()
-	cfg.CookieName = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s_%s", vh.CookieDomain, vh.Redirect)))
+	cfg.CookieName = strings.ReplaceAll(base32.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s_%s", vh.CookieDomain, vh.Redirect))), "=", "")
 	cfg.Domain = vh.CookieDomain
 	cfg.Expiration = time.Second * 604800
 	cfg.Secure = true
