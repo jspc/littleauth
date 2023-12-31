@@ -1,5 +1,5 @@
 [localhost]
-templates = "./testdata/form"
+templates = "./testdata/nonsuch"
 passwd    = "./testdata/passwd"
 redirect  = "http://example.com/"
 domain    = "example.net"

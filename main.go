@@ -11,17 +11,21 @@ var (
 )
 
 func main() {
-	c, err := ReadConfig(cfgFile)
-	if err != nil {
-		panic(err)
-	}
-
-	s, err := New(c)
+	s, err := prepareServer()
 	if err != nil {
 		panic(err)
 	}
 
 	panic(fasthttp.ListenAndServe(":8080", s.Handler))
+}
+
+func prepareServer() (s *Server, err error) {
+	c, err := ReadConfig(cfgFile)
+	if err != nil {
+		return
+	}
+
+	return New(c)
 }
 
 func envOrDefault(v, d string) string {

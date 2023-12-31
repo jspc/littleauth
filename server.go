@@ -39,13 +39,14 @@ func New(c *Config) (s *Server, err error) {
 // and either:
 //
 //  1. Returns a 200, signifying a request is valid; or
-//  2. Returns a 303 to the login form
+//  2. Returns a 303 to the login form; or finally
+//  3. Returns a 404, signifying that there is no configured login portal for the forwarded host
 //
 // We use a 303 to ensure that the form is always requested as a GET
 func (s *Server) Auth(ctx *fasthttp.RequestCtx) {
 	addr, vhost, err := s.config.MatchVHostByOrigin(ctx.Request.Header.Peek("X-Forwarded-Host"))
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
 		return
 	}
@@ -77,7 +78,7 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 
 	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
 		return
 	}
@@ -86,6 +87,8 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 		store, err := vhost.sm.Get(ctx)
 		if err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+
+			return
 		}
 
 		store.Set(isLoggedIn, true)
@@ -107,13 +110,15 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 func (s *Server) Logout(ctx *fasthttp.RequestCtx) {
 	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
 		return
 	}
 	store, err := vhost.sm.Get(ctx)
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+
+		return
 	}
 
 	store.Set(isLoggedIn, false)
@@ -131,7 +136,7 @@ func (s *Server) Logout(ctx *fasthttp.RequestCtx) {
 func (s *Server) RenderForm(ctx *fasthttp.RequestCtx) {
 	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
 	if err != nil {
-		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
 		return
 	}

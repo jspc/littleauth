@@ -1,6 +1,6 @@
 [localhost]
 templates = "./testdata/form"
-passwd    = "./testdata/passwd"
+passwd    = "./testdata/no-such-htpasswd"
 redirect  = "http://example.com/"
 domain    = "example.net"
 origins  = ["mail.example.com", "www.example.com", "example.com", "localhost"]

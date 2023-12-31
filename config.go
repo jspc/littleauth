@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"html/template"
@@ -8,9 +9,9 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/fasthttp/session/v2"
+	session "github.com/fasthttp/session/v2"
 	"github.com/fasthttp/session/v2/providers/memory"
-	"github.com/tg123/go-htpasswd"
+	htpasswd "github.com/tg123/go-htpasswd"
 )
 
 var MissingVHostErr = errors.New("unknown virtual host")
@@ -33,7 +34,7 @@ type VirtualHost struct {
 
 	passwd    *htpasswd.File     `toml:"-"`
 	templates *template.Template `toml:"-"`
-	sm        *session.Session   `toml:"-"`
+	sm        SessionManager     `toml:"-"`
 }
 
 // ReadConfig takes a config file, and organises the various
@@ -109,7 +110,7 @@ func (vh *VirtualHost) Configure() (err error) {
 	}
 
 	cfg := session.NewDefaultConfig()
-	cfg.CookieName = fmt.Sprintf("%s_%s", vh.CookieDomain, vh.Redirect)
+	cfg.CookieName = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s_%s", vh.CookieDomain, vh.Redirect)))
 	cfg.Domain = vh.CookieDomain
 	cfg.Expiration = time.Second * 604800
 	cfg.Secure = true
