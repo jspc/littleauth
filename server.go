@@ -30,6 +30,7 @@ func New(c *Config) (s *Server, err error) {
 	v1 := api.Group("/v1")
 	v1.GET("/auth", s.Auth)
 	v1.POST("/login", s.Login)
+	v1.GET("/logout", s.Logout)
 
 	return
 }
@@ -101,6 +102,29 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 	}
 
 	ctx.Error("incorrect username/password combination", fasthttp.StatusForbidden)
+}
+
+func (s *Server) Logout(ctx *fasthttp.RequestCtx) {
+	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+
+		return
+	}
+	store, err := vhost.sm.Get(ctx)
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+	}
+
+	store.Set(isLoggedIn, false)
+	err = vhost.sm.Save(ctx, store)
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+
+		return
+	}
+
+	ctx.Redirect(vhost.Redirect, fasthttp.StatusSeeOther)
 }
 
 // RenderForm shows the login form as provided by the sysadmin
