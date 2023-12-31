@@ -3,6 +3,7 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=jspc_littleauth&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=jspc_littleauth)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=jspc_littleauth&metric=bugs)](https://sonarcloud.io/summary/new_code?id=jspc_littleauth)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jspc_littleauth&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jspc_littleauth)
+[![Coverage Status](https://coveralls.io/repos/github/jspc/littleauth/badge.svg?branch=main)](https://coveralls.io/github/jspc/littleauth?branch=main)
 
 # littleauth
 
