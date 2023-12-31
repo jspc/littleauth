@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/jspc/littleauth)](https://goreportcard.com/report/github.com/jspc/littleauth)
+
 # littleauth
 
 Teeny tiny little auth gateway dealy.
