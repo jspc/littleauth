@@ -121,10 +121,10 @@ func (vh *VirtualHost) Configure() (err error) {
 
 	vh.sm = session.New(cfg)
 
-	provider, err := memory.New(memory.Config{})
-	if err != nil {
-		return
-	}
+	// According to https://github.com/fasthttp/session/blob/v2.5.3/providers/memory/provider.go#L29
+	// there _are_ no errors that can be returned here because fuck me for
+	// expecting quality
+	provider, _ := memory.New(memory.Config{})
 
 	return vh.sm.SetProvider(provider)
 }
