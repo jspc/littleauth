@@ -1,4 +1,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jspc/littleauth)](https://goreportcard.com/report/github.com/jspc/littleauth)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jspc_littleauth&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jspc_littleauth)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=jspc_littleauth&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=jspc_littleauth)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=jspc_littleauth&metric=bugs)](https://sonarcloud.io/summary/new_code?id=jspc_littleauth)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jspc_littleauth&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jspc_littleauth)
 
 # littleauth
 

@@ -52,10 +52,32 @@ jobs:
         name: build-artefacts
         path: |
           littleauth
+          coverage.out
+
+  sonarcloud:
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{ github.triggering_actor != 'dependabot[bot]' }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+
+    - name: Download artefacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artefacts
+
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 
   build-and-push:
-    needs: test
+    needs: sonarcloud
     permissions:
       contents: write
 
