@@ -1,4 +1,6 @@
-['*']
-templates = "testdata/form"
-passwd    = "testdata/passwd"
-redirect  = "https://example.com/"
+[accounts.example.net]
+templates = "/www/www.example.net/login"
+passwd    = "/www/www.example.net/.htpasswd"
+redirect  = "https://accounts.example.new/"
+domain    = "example.net"
+origins  = ["mail.example.com", "www.example.com", "example.com"]

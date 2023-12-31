@@ -12,12 +12,14 @@ const (
 )
 
 type Server struct {
-	config Config
+	config *Config
 
 	*router.Router
 }
 
-func New(c Config) (s Server, err error) {
+func New(c *Config) (s *Server, err error) {
+	s = new(Server)
+
 	s.config = c
 	s.Router = router.New()
 
@@ -39,8 +41,13 @@ func New(c Config) (s Server, err error) {
 //  2. Returns a 303 to the login form
 //
 // We use a 303 to ensure that the form is always requested as a GET
-func (s Server) Auth(ctx *fasthttp.RequestCtx) {
-	vhost := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+func (s *Server) Auth(ctx *fasthttp.RequestCtx) {
+	addr, vhost, err := s.config.MatchVHostByOrigin(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+
+		return
+	}
 
 	store, err := vhost.sm.Get(ctx)
 	if err != nil {
@@ -55,7 +62,7 @@ func (s Server) Auth(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctx.Redirect("https://auth.beasts.jspc.pw", fasthttp.StatusSeeOther)
+	ctx.Redirect(addr, fasthttp.StatusSeeOther)
 }
 
 // Login is a form handler, which receives a username and password from the login form.
@@ -63,11 +70,16 @@ func (s Server) Auth(ctx *fasthttp.RequestCtx) {
 // It looks these up against the htpasswd specified in the app config. Where the
 // credentials are correct, we redirect to the original URL. Where they don't, we
 // return a very unceremonious 403 message
-func (s Server) Login(ctx *fasthttp.RequestCtx) {
+func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.FormValue("username"))
 	password := string(ctx.FormValue("password"))
 
-	vhost := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+
+		return
+	}
 
 	if vhost.passwd.Match(username, password) {
 		store, err := vhost.sm.Get(ctx)
@@ -92,12 +104,17 @@ func (s Server) Login(ctx *fasthttp.RequestCtx) {
 }
 
 // RenderForm shows the login form as provided by the sysadmin
-func (s Server) RenderForm(ctx *fasthttp.RequestCtx) {
-	vhost := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+func (s *Server) RenderForm(ctx *fasthttp.RequestCtx) {
+	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+
+		return
+	}
 
 	ctx.SetContentType("text/html; charset=utf8")
 
-	err := vhost.templates.Execute(ctx, "login")
+	err = vhost.templates.Execute(ctx, "login")
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 	}

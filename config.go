@@ -13,7 +13,7 @@ import (
 	"github.com/tg123/go-htpasswd"
 )
 
-var MissingDefaultVHostErr = errors.New("missing default virtual host")
+var MissingVHostErr = errors.New("unknown virtual host")
 
 // Config maps a set of virtualhosts with host names
 type Config map[string]*VirtualHost
@@ -24,8 +24,12 @@ type VirtualHost struct {
 	TemplateDir  string `toml:"templates"`
 	PasswdFile   string `toml:"passwd"`
 	Redirect     string `toml:"redirect"`
-	TOTPFile     string `toml:"totp,omitempty"`
-	CookieDomain string `toml:"domain,omitempty"`
+	TOTPFile     string `toml:"totp"`
+	CookieDomain string `toml:"domain"`
+
+	// Origins contains the permitted x-forwarded-host values
+	// allowed to authenticate against this virtual host
+	Origins []string `toml:"origins"`
 
 	passwd    *htpasswd.File     `toml:"-"`
 	templates *template.Template `toml:"-"`
@@ -40,33 +44,53 @@ type VirtualHost struct {
 //  1. The server config file does not exist
 //  2. VHost configurations are wrong, such as missing htpasswd or templates
 //  3. The config file doesn't contain a default vhost
-func ReadConfig(fn string) (c Config, err error) {
-	_, err = toml.DecodeFile(fn, &c)
+func ReadConfig(fn string) (c *Config, err error) {
+	c = new(Config)
+
+	_, err = toml.DecodeFile(fn, c)
 	if err != nil {
 		return
 	}
 
-	for _, vh := range c {
+	for _, vh := range *c {
 		err = vh.Configure()
 		if err != nil {
 			return
 		}
 	}
 
-	if _, ok := c["*"]; !ok {
-		err = MissingDefaultVHostErr
+	return
+}
+
+// MatchVHost returns either a named vhost or the default vhost, depending
+// on whether the vhost exists
+func (c Config) MatchVHost(host []byte) (vh *VirtualHost, err error) {
+	vh, ok := c[string(host)]
+	if !ok {
+		err = MissingVHostErr
 	}
 
 	return
 }
 
-// MatchVHost returns either a names vhost or the default vhost, depending
-// on whether the vhost exists
-func (c Config) MatchVHost(host []byte) (vh *VirtualHost) {
-	vh, ok := c[string(host)]
-	if !ok {
-		vh = c["*"]
+// MatchVHostByOrigin returns either a specific vhost or the default vhost
+// based on the requested origin.
+//
+// This allows us to have many different services use a single vhost
+func (c Config) MatchVHostByOrigin(host []byte) (addr string, vh *VirtualHost, err error) {
+	h := string(host)
+
+	for addr, vh = range c {
+		for _, o := range vh.Origins {
+			if h == o {
+				addr = "https://" + addr
+
+				return
+			}
+		}
 	}
+
+	err = MissingVHostErr
 
 	return
 }

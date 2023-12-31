@@ -21,17 +21,12 @@ It:
 This project uses a toml file as per:
 
 ```toml
-['*']
-templates = "/www/default-form"
-passwd    = "/www/.htpasswd"
-redirect  = "https://example.com/dashboard"
-totp      = "/www/.totp"
-
 [accounts.example.net]
 templates = "/www/www.example.net/login"
 passwd    = "/www/www.example.net/.htpasswd"
 redirect  = "https://accounts.example.new/"
-domain    = "accounts.example.com"
+domain    = "example.net"
+origins  = ["mail.example.com", "www.example.com", "example.com"]
 ```
 
 The format of this file is:
@@ -44,11 +39,13 @@ type VirtualHost struct {
     TemplateDir  string `toml:"templates"`
     PasswdFile   string `toml:"passwd"`
     Redirect     string `toml:"redirect"`
-    TOTPFile     string `toml:"totp,omitempty"`
-    CookieDomain string `toml:"domain,omitempty"`
+    TOTPFile     string `toml:"totp"`
+    CookieDomain string `toml:"domain"`
+
+    // Origins contains the permitted x-forwarded-host values
+    // allowed to authenticate against this virtual host
+    Origins []string `toml:"origins"`
 }
 ```
 
-`VirtualHosts` are matched based on the value of the `X-Forwarded-Host` header. Where this header doesn't exist, or there's no match, the default virtualhost matches.
-
-If the config file doesn't contain a default virtualhost then the app doesn't start.
+`VirtualHosts` are matched based on the value of the `X-Forwarded-Host` header. Where this header doesn't exist, or there's no match, nothing happens.
