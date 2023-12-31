@@ -1,14 +1,7 @@
 package main
 
 import (
-	"html/template"
-	"path/filepath"
-	"time"
-
 	"github.com/fasthttp/router"
-	"github.com/fasthttp/session/v2"
-	"github.com/fasthttp/session/v2/providers/memory"
-	"github.com/tg123/go-htpasswd"
 	"github.com/valyala/fasthttp"
 )
 
@@ -19,32 +12,14 @@ const (
 )
 
 type Server struct {
-	templates    *template.Template
-	sm           *session.Session
-	passwd       *htpasswd.File
-	authRedirect string
+	config Config
 
 	*router.Router
 }
 
-func New(passwordPath, templatesPath, authRedirect string) (s Server, err error) {
-	s.authRedirect = authRedirect
+func New(c Config) (s Server, err error) {
+	s.config = c
 	s.Router = router.New()
-
-	s.passwd, err = htpasswd.New(passwordPath, htpasswd.DefaultSystems, nil)
-	if err != nil {
-		return
-	}
-
-	s.templates, err = template.New("login").ParseGlob(filepath.Join(templatesPath, "*.html.tmpl"))
-	if err != nil {
-		return
-	}
-
-	err = s.setSessionManager()
-	if err != nil {
-		return
-	}
 
 	s.GET("/", s.RenderForm)
 
@@ -57,26 +32,6 @@ func New(passwordPath, templatesPath, authRedirect string) (s Server, err error)
 	return
 }
 
-func (s *Server) setSessionManager() (err error) {
-	cfg := session.NewDefaultConfig()
-	cfg.CookieName = "littleauth"
-	cfg.Domain = "jspc.pw"
-	cfg.Expiration = time.Second * 604800
-	cfg.Secure = true
-
-	cfg.EncodeFunc = session.MSGPEncode
-	cfg.DecodeFunc = session.MSGPDecode
-
-	s.sm = session.New(cfg)
-
-	provider, err := memory.New(memory.Config{})
-	if err != nil {
-		return
-	}
-
-	return s.sm.SetProvider(provider)
-}
-
 // Auth determines whether a request is allowed access to the specified downstream
 // and either:
 //
@@ -85,7 +40,9 @@ func (s *Server) setSessionManager() (err error) {
 //
 // We use a 303 to ensure that the form is always requested as a GET
 func (s Server) Auth(ctx *fasthttp.RequestCtx) {
-	store, err := s.sm.Get(ctx)
+	vhost := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+
+	store, err := vhost.sm.Get(ctx)
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 
@@ -110,21 +67,23 @@ func (s Server) Login(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.FormValue("username"))
 	password := string(ctx.FormValue("password"))
 
-	if s.passwd.Match(username, password) {
-		store, err := s.sm.Get(ctx)
+	vhost := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+
+	if vhost.passwd.Match(username, password) {
+		store, err := vhost.sm.Get(ctx)
 		if err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		}
 
 		store.Set(isLoggedIn, true)
-		err = s.sm.Save(ctx, store)
+		err = vhost.sm.Save(ctx, store)
 		if err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 
 			return
 		}
 
-		ctx.Redirect(s.authRedirect, fasthttp.StatusSeeOther)
+		ctx.Redirect(vhost.Redirect, fasthttp.StatusSeeOther)
 
 		return
 	}
@@ -134,9 +93,11 @@ func (s Server) Login(ctx *fasthttp.RequestCtx) {
 
 // RenderForm shows the login form as provided by the sysadmin
 func (s Server) RenderForm(ctx *fasthttp.RequestCtx) {
+	vhost := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+
 	ctx.SetContentType("text/html; charset=utf8")
 
-	err := s.templates.Execute(ctx, "login")
+	err := vhost.templates.Execute(ctx, "login")
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 	}

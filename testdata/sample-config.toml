@@ -1,0 +1,4 @@
+['*']
+templates = "testdata/form"
+passwd    = "testdata/passwd"
+redirect  = "https://example.com/"

@@ -15,3 +15,40 @@ It:
 * Copious tests
 * No/ few allocations
 * Fuck all logic
+
+## Configuration
+
+This project uses a toml file as per:
+
+```toml
+['*']
+templates = "/www/default-form"
+passwd    = "/www/.htpasswd"
+redirect  = "https://example.com/dashboard"
+totp      = "/www/.totp"
+
+[accounts.example.net]
+templates = "/www/www.example.net/login"
+passwd    = "/www/www.example.net/.htpasswd"
+redirect  = "https://accounts.example.new/"
+domain    = "accounts.example.com"
+```
+
+The format of this file is:
+
+```golang
+
+type Config map[string]VirtualHost
+
+type VirtualHost struct {
+    TemplateDir  string `toml:"templates"`
+    PasswdFile   string `toml:"passwd"`
+    Redirect     string `toml:"redirect"`
+    TOTPFile     string `toml:"totp,omitempty"`
+    CookieDomain string `toml:"domain,omitempty"`
+}
+```
+
+`VirtualHosts` are matched based on the value of the `X-Forwarded-Host` header. Where this header doesn't exist, or there's no match, the default virtualhost matches.
+
+If the config file doesn't contain a default virtualhost then the app doesn't start.

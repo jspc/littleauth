@@ -7,13 +7,16 @@ import (
 )
 
 var (
-	passwdFile       = envOrDefault("PASSWD_FILE", "testdata/passwd")
-	formsDir         = envOrDefault("FORMS_DIR", "testdata/form")
-	postAuthRedirect = envOrDefault("POST_AUTH_REDIR", "https://ipv4.rides.beasts.jspc.pw")
+	cfgFile = envOrDefault("CONFIG", "testdata/sample-config.toml")
 )
 
 func main() {
-	s, err := New(passwdFile, formsDir, postAuthRedirect)
+	c, err := ReadConfig(cfgFile)
+	if err != nil {
+		panic(err)
+	}
+
+	s, err := New(c)
 	if err != nil {
 		panic(err)
 	}
