@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 )
@@ -106,6 +108,7 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	time.Sleep(time.Millisecond * 300)
 	ctx.Error("incorrect username/password combination", fasthttp.StatusForbidden)
 }
 
