@@ -9,6 +9,8 @@ const (
 	// isLoggedIn is the key used in the session manager to signify whether
 	// the user is, uhhhh, logged in
 	isLoggedIn = "is-logged-in"
+
+	forwardedForHeader = "X-Forwarded-Host"
 )
 
 type Server struct {
@@ -44,7 +46,7 @@ func New(c *Config) (s *Server, err error) {
 //
 // We use a 303 to ensure that the form is always requested as a GET
 func (s *Server) Auth(ctx *fasthttp.RequestCtx) {
-	addr, vhost, err := s.config.MatchVHostByOrigin(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	addr, vhost, err := s.config.MatchVHostByOrigin(ctx.Request.Header.Peek(forwardedForHeader))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
@@ -76,7 +78,7 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.FormValue("username"))
 	password := string(ctx.FormValue("password"))
 
-	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek(forwardedForHeader))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
@@ -108,7 +110,7 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 }
 
 func (s *Server) Logout(ctx *fasthttp.RequestCtx) {
-	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek(forwardedForHeader))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
@@ -134,7 +136,7 @@ func (s *Server) Logout(ctx *fasthttp.RequestCtx) {
 
 // RenderForm shows the login form as provided by the sysadmin
 func (s *Server) RenderForm(ctx *fasthttp.RequestCtx) {
-	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek("X-Forwarded-Host"))
+	vhost, err := s.config.MatchVHost(ctx.Request.Header.Peek(forwardedForHeader))
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 
