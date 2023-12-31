@@ -82,7 +82,7 @@ func (s *Server) Login(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if vhost.passwd.Match(username, password) {
+	if vhost.Authenticate(username, password) {
 		store, err := vhost.sm.Get(ctx)
 		if err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)

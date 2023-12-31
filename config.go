@@ -126,3 +126,8 @@ func (vh *VirtualHost) Configure() (err error) {
 
 	return vh.sm.SetProvider(provider)
 }
+
+func (vh *VirtualHost) Authenticate(username, password string) bool {
+	return vh.passwd.Match(username, password)
+
+}
