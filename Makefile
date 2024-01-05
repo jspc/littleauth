@@ -4,5 +4,5 @@ littleauth: *.go go.* merged.pprof
 	$(go_build_cmd) -o $@
 	-upx $@
 
-merged.pprof: profiles/*.pprof
+merged.pprof:
 	go tool pprof -proto profiles/*.pprof merged.pprof
