@@ -5,4 +5,4 @@ littleauth: *.go go.* merged.pprof
 	-upx $@
 
 merged.pprof:
-	go tool pprof -proto profiles/*.pprof merged.pprof
+	go tool pprof -proto -output merged.pprof profiles/*.pprof

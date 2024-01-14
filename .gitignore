@@ -1,2 +1,3 @@
 littleauth
 profiles/*.pprof
+*.pb.gz
