@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/BurntSushi/toml v1.3.2
-	github.com/fasthttp/router v1.4.22
+	github.com/fasthttp/router v1.5.0
 	github.com/fasthttp/session/v2 v2.5.4
 	github.com/tg123/go-htpasswd v1.2.2
 	github.com/valyala/fasthttp v1.52.0
