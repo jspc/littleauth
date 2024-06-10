@@ -3,7 +3,7 @@ module github.com/jspc/littleauth
 go 1.21
 
 require (
-	github.com/BurntSushi/toml v1.3.2
+	github.com/BurntSushi/toml v1.4.0
 	github.com/fasthttp/router v1.5.1
 	github.com/fasthttp/session/v2 v2.5.4
 	github.com/tg123/go-htpasswd v1.2.2
