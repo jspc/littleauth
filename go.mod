@@ -7,14 +7,14 @@ require (
 	github.com/fasthttp/router v1.5.1
 	github.com/fasthttp/session/v2 v2.5.5
 	github.com/tg123/go-htpasswd v1.2.2
-	github.com/valyala/fasthttp v1.54.0
+	github.com/valyala/fasthttp v1.55.0
 	golang.org/x/net v0.26.0
 )
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20230320061759-8cc1b52080c5 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/klauspost/compress v1.17.7 // indirect
+	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/savsgio/gotils v0.0.0-20240303185622-093b76447511 // indirect
 	github.com/tinylib/msgp v1.1.9 // indirect
