@@ -8,7 +8,7 @@ require (
 	github.com/fasthttp/session/v2 v2.5.5
 	github.com/tg123/go-htpasswd v1.2.2
 	github.com/valyala/fasthttp v1.54.0
-	golang.org/x/net v0.26.0
+	golang.org/x/net v0.27.0
 )
 
 require (
@@ -19,5 +19,5 @@ require (
 	github.com/savsgio/gotils v0.0.0-20240303185622-093b76447511 // indirect
 	github.com/tinylib/msgp v1.1.9 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	golang.org/x/crypto v0.24.0 // indirect
+	golang.org/x/crypto v0.25.0 // indirect
 )
