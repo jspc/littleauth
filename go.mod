@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/fasthttp/router v1.5.2
 	github.com/fasthttp/session/v2 v2.5.6
-	github.com/tg123/go-htpasswd v1.2.2
+	github.com/tg123/go-htpasswd v1.2.3
 	github.com/valyala/fasthttp v1.56.0
 	golang.org/x/net v0.29.0
 )
