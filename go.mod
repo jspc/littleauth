@@ -8,7 +8,7 @@ require (
 	github.com/fasthttp/session/v2 v2.5.7
 	github.com/tg123/go-htpasswd v1.2.3
 	github.com/valyala/fasthttp v1.58.0
-	golang.org/x/net v0.31.0
+	golang.org/x/net v0.33.0
 )
 
 require (
