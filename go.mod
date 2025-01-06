@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/fasthttp/router v1.5.3
-	github.com/fasthttp/session/v2 v2.5.7
+	github.com/fasthttp/session/v2 v2.5.9
 	github.com/tg123/go-htpasswd v1.2.3
 	github.com/valyala/fasthttp v1.58.0
 	golang.org/x/net v0.33.0
